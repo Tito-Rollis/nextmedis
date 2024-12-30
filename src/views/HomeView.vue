@@ -2,16 +2,15 @@
 import ButtonComponent from '@/components/ButtonComponent.vue'
 import ModalFormComponent from '@/components/ModalFormComponent.vue'
 import router from '@/router'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useHome } from '@/composable/useHome'
 import { useController } from '@/composable/useController'
+import { useModalStore } from '@/stores/modalStore'
 
 const { handleLogout } = useHome()
+const { handleOpenModal } = useModalStore()
 
 const {
-  open,
-  closeModal,
-  openModal,
   getLocalStorage,
   localStorageObject,
   handleDelete,
@@ -25,6 +24,8 @@ onMounted(() => {
     router.push('/login')
   }
 })
+
+const localStorage = computed(() => localStorageObject())
 </script>
 
 <template>
@@ -33,7 +34,7 @@ onMounted(() => {
       <div class="flex items-center gap-4">
         <!-- Icon -->
         <span
-          @click="openModal"
+          @click="handleOpenModal"
           class="material-symbols-rounded text-white text-3xl cursor-pointer"
         >
           settings
@@ -50,19 +51,14 @@ onMounted(() => {
     </div>
     <!-- User Profil -->
     <div class="flex flex-col w-full h-full justify-center items-center gap-2">
-      <div
-        class="w-14 h-14 rounded-full"
-        :style="`background:${localStorageObject()?.avatar}`"
-      ></div>
-      <h1 class="text-white">{{ localStorageObject()?.email }}</h1>
+      <div class="w-14 h-14 rounded-full" :style="`background:${localStorage?.avatar}`"></div>
+      <h1 class="text-white">{{ localStorage?.email }}</h1>
       <img @click="handleDelete" class="cursor-pointer" src="../assets/delete.svg" alt="" />
     </div>
   </div>
 
   <ModalFormComponent
-    :email-placeholder="localStorageObject()?.email ?? ''"
-    :handle-close-modal="closeModal"
-    :open="open"
+    :email-placeholder="localStorage?.email ?? ''"
     :disabled="disabled"
     :handle-update="handleUpdate"
     :handle-email-change="handleEmailChange"

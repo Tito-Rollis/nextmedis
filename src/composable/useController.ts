@@ -1,6 +1,7 @@
 import { deleteUser, getUsers, loginUser, registerUser, updateUser } from '@/api/user'
 import router from '@/router'
 import { computed, reactive, ref } from 'vue'
+import { useModalStore } from '../stores/modalStore'
 import bcrypt from 'bcryptjs'
 
 export const useController = () => {
@@ -10,7 +11,7 @@ export const useController = () => {
     id: string
   }
 
-  const open = ref(false)
+  const { handleCloseModal } = useModalStore()
 
   const localStorageObject: () => LocalStorage | null = () => {
     const storage = localStorage.getItem('result')
@@ -30,22 +31,22 @@ export const useController = () => {
 
     // Check availability of email
     if (user) {
-      alert('Email sudah ada!!!')
       disabled.value = false
+      alert('Email sudah ada!!!')
     } else {
+      disabled.value = true
       await registerUser(form.email, form.password)
       router.push('/login')
-      disabled.value = true
     }
   }
 
   const handleLogin = async () => {
     try {
+      disabled.value = true
       const user = await loginUser(form.email, form.password).then((e) => e)
 
       if (user) {
         router.push('/')
-        disabled.value = true
       } else {
         alert('tidak sukses')
         disabled.value = false
@@ -57,10 +58,10 @@ export const useController = () => {
 
   const handleUpdate = async () => {
     try {
+      disabled.value = true
       await updateUser(localStorageObject()?.id ?? '', form.email, form.password)
 
-      closeModal()
-      disabled.value = true
+      handleCloseModal()
     } catch (error) {
       console.log(error)
       disabled.value = false
@@ -69,8 +70,8 @@ export const useController = () => {
 
   const handleDelete = async () => {
     try {
-      await deleteUser(localStorageObject()?.id ?? '')
       disabled.value = true
+      await deleteUser(localStorageObject()?.id ?? '')
       router.push('/login')
     } catch (error) {
       console.log(error)
@@ -90,17 +91,9 @@ export const useController = () => {
     form.email = e
   }
 
-  const openModal = () => {
-    open.value = true
-  }
-  const closeModal = () => {
-    open.value = false
-  }
   return {
     disabled,
     open,
-    openModal,
-    closeModal,
     form,
     getLocalStorage,
     handleUpdate,
