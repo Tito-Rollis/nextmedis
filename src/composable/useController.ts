@@ -13,60 +13,7 @@ export const useController = () => {
 
   const { handleCloseModal } = useModalStore()
 
-  const localStorageObject: () => LocalStorage | null = () => {
-    const storage = localStorage.getItem('result')
-    return storage ? JSON.parse(storage) : null
-  }
   const getLocalStorage = computed(() => !!localStorage.getItem('result'))
-
-  const disabled = ref(false)
-  const form = reactive({
-    email: '',
-    password: '',
-  })
-
-  const handleRegister = async () => {
-    const users = await getUsers()
-    const user = users.find((user) => user.email === form.email)
-
-    // Check availability of email
-    if (user) {
-      disabled.value = false
-      alert('Email sudah ada!!!')
-    } else {
-      disabled.value = true
-      await registerUser(form.email, form.password)
-      router.push('/login')
-    }
-  }
-
-  const handleLogin = async () => {
-    try {
-      disabled.value = true
-      const user = await loginUser(form.email, form.password).then((e) => e)
-
-      if (user) {
-        router.push('/')
-      } else {
-        alert('tidak sukses')
-        disabled.value = false
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const handleUpdate = async () => {
-    try {
-      disabled.value = true
-      await updateUser(localStorageObject()?.id ?? '', form.email, form.password)
-
-      handleCloseModal()
-    } catch (error) {
-      console.log(error)
-      disabled.value = false
-    }
-  }
 
   const handleDelete = async () => {
     try {

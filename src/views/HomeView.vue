@@ -8,7 +8,7 @@ import { useController } from '@/composable/useController'
 import { useModalStore } from '@/stores/modalStore'
 
 const { handleLogout } = useHome()
-const { handleOpenModal } = useModalStore()
+const modalStore = useModalStore()
 
 const {
   getLocalStorage,
@@ -34,7 +34,7 @@ const localStorage = computed(() => localStorageObject())
       <div class="flex items-center gap-4">
         <!-- Icon -->
         <span
-          @click="handleOpenModal"
+          @click="modalStore.handleOpenModal"
           class="material-symbols-rounded text-white text-3xl cursor-pointer"
         >
           settings
@@ -58,6 +58,7 @@ const localStorage = computed(() => localStorageObject())
   </div>
 
   <ModalFormComponent
+    v-if="modalStore.defaultState"
     :email-placeholder="localStorage?.email ?? ''"
     :disabled="disabled"
     :handle-update="handleUpdate"

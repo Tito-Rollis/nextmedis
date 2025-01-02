@@ -10,16 +10,13 @@ const props = defineProps<{
   emailPlaceholder: string
 }>()
 
-const { openModal, handleCloseModal } = useModalStore()
-
-console.log(openModal)
+const { handleCloseModal } = useModalStore()
 </script>
 
 <template>
   <Teleport to="#user-profile">
     <div
       class="absolute left-0 right-0 bottom-0 top-0 z-50 flex m-auto justify-center items-center"
-      v-if="openModal"
     >
       <div class="flex flex-col bg-white/30 backdrop-blur-sm w-5/6 md:w-1/2 h-fit p-6 rounded">
         <span
