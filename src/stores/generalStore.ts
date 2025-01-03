@@ -1,8 +1,11 @@
+import router from '@/router'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
 
 export const useGeneralStore = defineStore('general', () => {
-  const disabled = ref(false)
+  const handleLogout = () => {
+    router.push('/login')
+    localStorage.removeItem('result')
+  }
 
-  return { disabled }
+  return { handleLogout }
 })

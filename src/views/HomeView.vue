@@ -2,30 +2,30 @@
 import ButtonComponent from '@/components/ButtonComponent.vue'
 import ModalFormComponent from '@/components/ModalFormComponent.vue'
 import router from '@/router'
-import { computed, onMounted } from 'vue'
-import { useHome } from '@/composable/useHome'
-import { useController } from '@/composable/useController'
+import { computed, onMounted, ref } from 'vue'
 import { useModalStore } from '@/stores/modalStore'
+import { useApiStore } from '@/stores/apiStore'
+import { useGeneralStore } from '@/stores/generalStore'
+import { useFormStore } from '@/stores/formStore'
 
-const { handleLogout } = useHome()
 const modalStore = useModalStore()
+const formStore = useFormStore()
+const apiStore = useApiStore()
+const generalStore = useGeneralStore()
 
-const {
-  getLocalStorage,
-  localStorageObject,
-  handleDelete,
-  handleUpdate,
-  disabled,
-  handleEmailChange,
-  handleHashedPasswordChange,
-} = useController()
+const disabled = ref(false)
+const handleUpdate = () => {
+  disabled.value = true
+  apiStore.handleUpdate()
+}
+
 onMounted(() => {
-  if (!getLocalStorage.value) {
+  if (!apiStore.getLocalStorage) {
     router.push('/login')
   }
 })
 
-const localStorage = computed(() => localStorageObject())
+const localStorage = computed(() => apiStore.localStorageObject())
 </script>
 
 <template>
@@ -45,7 +45,7 @@ const localStorage = computed(() => localStorageObject())
           textColor="text-white"
           type="button"
           width="w-fit"
-          :handleClick="handleLogout"
+          :handleClick="generalStore.handleLogout"
         />
       </div>
     </div>
@@ -53,7 +53,12 @@ const localStorage = computed(() => localStorageObject())
     <div class="flex flex-col w-full h-full justify-center items-center gap-2">
       <div class="w-14 h-14 rounded-full" :style="`background:${localStorage?.avatar}`"></div>
       <h1 class="text-white">{{ localStorage?.email }}</h1>
-      <img @click="handleDelete" class="cursor-pointer" src="../assets/delete.svg" alt="" />
+      <img
+        @click="apiStore.handleDelete"
+        class="cursor-pointer"
+        src="../assets/delete.svg"
+        alt=""
+      />
     </div>
   </div>
 
@@ -62,7 +67,7 @@ const localStorage = computed(() => localStorageObject())
     :email-placeholder="localStorage?.email ?? ''"
     :disabled="disabled"
     :handle-update="handleUpdate"
-    :handle-email-change="handleEmailChange"
-    :handle-password-change="handleHashedPasswordChange"
+    :handle-email-change="formStore.handleEmailChange"
+    :handle-password-change="formStore.handleHashedPasswordChange"
   />
 </template>

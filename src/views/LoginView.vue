@@ -1,8 +1,18 @@
 <script setup lang="ts">
 import FormComponent from '@/components/FormComponent.vue'
-import { useController } from '@/composable/useController'
+import { useApiStore } from '@/stores/apiStore'
+import { useFormStore } from '@/stores/formStore'
+import { ref } from 'vue'
 
-const { handleLogin, handleEmailChange, handlePasswordChange, disabled } = useController()
+const formStore = useFormStore()
+const apiStore = useApiStore()
+
+const disabled = ref(false)
+
+const handleLogin = () => {
+  disabled.value = true
+  apiStore.handleLogin()
+}
 </script>
 
 <template>
@@ -12,8 +22,8 @@ const { handleLogin, handleEmailChange, handlePasswordChange, disabled } = useCo
       btnTitle="Login"
       :disabled="disabled"
       :handleClick="handleLogin"
-      :handleEmailChange="handleEmailChange"
-      :handle-password-change="handlePasswordChange"
+      :handleEmailChange="formStore.handleEmailChange"
+      :handle-password-change="formStore.handlePasswordChange"
     />
     <h1 class="text-white">
       Jika belum daftar, silahkan ke halaman

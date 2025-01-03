@@ -1,9 +1,10 @@
-import { getUsers, loginUser, registerUser, updateUser } from '@/api/user'
+import { deleteUser, getUsers, loginUser, registerUser, updateUser } from '@/api/user'
 import { defineStore } from 'pinia'
-import { reactive } from 'vue'
 import { useGeneralStore } from './generalStore'
 import router from '@/router'
 import { useModalStore } from './modalStore'
+import { useFormStore } from './formStore'
+import { computed } from 'vue'
 
 interface LocalStorage {
   email: string
@@ -16,18 +17,15 @@ export const useApiStore = defineStore('api', () => {
     const storage = localStorage.getItem('result')
     return storage ? JSON.parse(storage) : null
   }
+  const getLocalStorage = computed(() => !!localStorage.getItem('result'))
 
   const generalStore = useGeneralStore()
   const modalStore = useModalStore()
-
-  const form = reactive({
-    email: '',
-    password: '',
-  })
+  const formStore = useFormStore()
 
   const handleRegister = async () => {
     const users = await getUsers()
-    const user = users.find((user) => user.email === form.email)
+    const user = users.find((user) => user.email === formStore.form.email)
 
     // Check availability of email
     if (user) {
@@ -35,7 +33,7 @@ export const useApiStore = defineStore('api', () => {
       alert('Email sudah ada!!!')
     } else {
       generalStore.$patch({ disabled: true })
-      await registerUser(form.email, form.password)
+      await registerUser(formStore.form.email, formStore.form.password)
       router.push('/login')
     }
   }
@@ -43,7 +41,7 @@ export const useApiStore = defineStore('api', () => {
   const handleLogin = async () => {
     try {
       generalStore.$patch({ disabled: true })
-      const user = await loginUser(form.email, form.password).then((e) => e)
+      const user = await loginUser(formStore.form.email, formStore.form.password).then((e) => e)
 
       if (user) {
         router.push('/')
@@ -58,8 +56,11 @@ export const useApiStore = defineStore('api', () => {
 
   const handleUpdate = async () => {
     try {
-      generalStore.$patch({ disabled: true })
-      await updateUser(localStorageObject()?.id ?? '', form.email, form.password)
+      await updateUser(
+        localStorageObject()?.id ?? '',
+        formStore.form.email,
+        formStore.form.password,
+      )
 
       modalStore.handleCloseModal()
     } catch (error) {
@@ -68,5 +69,21 @@ export const useApiStore = defineStore('api', () => {
     }
   }
 
-  return { form, handleRegister, handleLogin, handleUpdate }
+  const handleDelete = async () => {
+    try {
+      await deleteUser(localStorageObject()?.id ?? '')
+      router.push('/login')
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  return {
+    handleRegister,
+    handleLogin,
+    handleUpdate,
+    handleDelete,
+    localStorageObject,
+    getLocalStorage,
+  }
 })
